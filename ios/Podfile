@@ -1,0 +1,74 @@
+# Resolve react_native_pods.rb with node to allow for hoisting
+require Pod::Executable.execute_command('node', ['-p',
+  'require.resolve(
+    "react-native/scripts/react_native_pods.rb",
+    {paths: [process.argv[1]]},
+  )', __dir__]).strip
+
+platform :ios, min_ios_version_supported
+prepare_react_native_project!
+
+linkage = ENV['USE_FRAMEWORKS']
+if linkage != nil
+  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+  use_frameworks! :linkage => linkage.to_sym
+end
+
+target 'WordScramble' do
+  config = use_native_modules!
+
+  use_react_native!(
+    :path => config[:reactNativePath],
+    # An absolute path to your application root.
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+  )
+
+  post_install do |installer|
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false,
+      # :ccache_enabled => true
+    )
+
+    # react-native-sound plays audio through AVFoundation but its podspec does
+    # not declare it, so the app fails to link (AVAudioPlayer / AVAudioSession
+    # undefined). Link it into the app target here; this runs on every
+    # `pod install`, so it survives a Pods reinstall.
+    # The reference is relative to the SDK in use (:sdk_root). The helper
+    # `target.add_system_framework` pins one SDK version in the path, which
+    # breaks as soon as Xcode ships a different one.
+    installer.aggregate_targets.each do |aggregate|
+      project = aggregate.user_project
+      project.files
+        .select { |f| f.display_name == 'AVFoundation.framework' }
+        .each do |f|
+          f.build_files.each(&:remove_from_project)
+          f.remove_from_project
+        end
+      ref = project.frameworks_group.new_file('System/Library/Frameworks/AVFoundation.framework', :sdk_root)
+      project.native_targets.each do |target|
+        target.frameworks_build_phase.add_file_reference(ref, true)
+      end
+
+      # Ship the sound effects inside the app. On iOS react-native-sound
+      # otherwise downloads them from Metro in development, and when Metro is
+      # not reachable the load fails (OSStatus 'wht?'). The files stay in
+      # src/assests/sounds; the project only references them from there.
+      app = project.native_targets.find { |t| t.name == 'WordScramble' }
+      # `tap` is listed only so a reference left by an older Podfile is removed.
+      %w[tap correct wrong].each do |name|
+        path = "../src/assests/sounds/#{name}.wav"
+        project.files.select { |f| f.path == path }.each do |f|
+          f.build_files.each(&:remove_from_project)
+          f.remove_from_project
+        end
+        next if name == 'tap'
+        ref = project.main_group.new_file(path)
+        app.resources_build_phase.add_file_reference(ref, true)
+      end
+
+      project.save
+    end
+  end
+end
