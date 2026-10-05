@@ -12,7 +12,10 @@ import AnswerSlot from './AnswerSlot';
 
 // Under the play area: a thin bar showing how much of the word is built, and
 // the rack the letters land on.
-const AnswerPanel = ({ word, length = word.length, picked, result, shake }) => (
+// `reach` is how many slots the words still possible can fill: the empty slots
+// below it light up, the ones past it fade. Null means no letters yet, so all
+// slots look the same.
+const AnswerPanel = ({ word, length = word.length, reach = null, picked, result, shake }) => (
   <View style={styles.wrap}>
     <View style={styles.track}>
       <View style={[styles.fill, { width: `${(picked.length / length) * 100}%` }]} />
@@ -28,7 +31,13 @@ const AnswerPanel = ({ word, length = word.length, picked, result, shake }) => (
       ]}
     >
       {Array.from({ length }, (_, i) => (
-        <AnswerSlot key={i} letter={picked[i]?.ch ?? ''} status={picked[i] ? result : null} />
+        <AnswerSlot
+          key={i}
+          letter={picked[i]?.ch ?? ''}
+          status={picked[i] ? result : null}
+          highlight={reach !== null && !picked[i] && i < reach}
+          faded={reach !== null && !picked[i] && i >= reach}
+        />
       ))}
     </Animated.View>
 

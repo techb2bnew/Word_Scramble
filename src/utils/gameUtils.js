@@ -44,6 +44,42 @@ const shuffleList = (list) => {
   return out;
 };
 
+// Whether the boxes given still hold the letters of at least one word. Order
+// does not matter: the player can tap the boxes in any order, so a word whose
+// letters are all there can always be spelled.
+export const canSpellAnyWord = (tiles) => {
+  const have = {};
+  tiles.forEach((tile) => {
+    const ch = tile.ch.toUpperCase();
+    have[ch] = (have[ch] || 0) + 1;
+  });
+  return WORDS.some((word) => {
+    const need = {};
+    return [...word.toUpperCase()].every((ch) => {
+      need[ch] = (need[ch] || 0) + 1;
+      return need[ch] <= (have[ch] || 0);
+    });
+  });
+};
+
+// How many letters the longest word starting with `spelled` has. After `E`, every
+// word that starts with it is 3 letters long, so the answer is 3. Zero when no
+// word starts that way.
+export const wordReach = (spelled) =>
+  Math.max(
+    0,
+    ...WORDS.filter((w) => w.toLowerCase().startsWith(spelled.toLowerCase())).map((w) => w.length),
+  );
+
+// The letters that can come next after `spelled`: for ET that is A and D (ETA,
+// ETD). Capitals, since the grid is in capitals.
+export const nextLetters = (spelled) =>
+  new Set(
+    WORDS.filter((w) => w.toLowerCase().startsWith(spelled.toLowerCase()) && w.length > spelled.length).map((w) =>
+      w[spelled.length].toUpperCase(),
+    ),
+  );
+
 // How many rack slots the game needs. It is the longest hidden word, not the
 // length of this round's word, so the slots do not give the word away.
 export const longestWordLength = () => Math.max(...WORDS.map((word) => word.length));

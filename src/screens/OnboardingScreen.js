@@ -120,6 +120,7 @@ import {
   DEMO_WRONG,
   DEMO_STEP_DURATION,
 } from '../constant/Constants';
+import { longestWordLength, wordReach } from '../utils/gameUtils';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from '../utils';
 import HiddenCard from '../components/HiddenCard';
 import AnswerSlot from '../components/AnswerSlot';
@@ -134,7 +135,8 @@ const CoverDemo = () => (
 );
 
 // Slide 2: boxes turn over one after another and each letter drops into the
-// row below, the way it does in the game. When the word is whole it starts over.
+// row below, the way it does in the game. The slots a word can still reach glow
+// and the rest fade. When the word is whole it starts over.
 const FlipDemo = () => {
   const [count, setCount] = useState(0);
 
@@ -146,6 +148,8 @@ const FlipDemo = () => {
     return () => clearInterval(timer);
   }, []);
 
+  const reach = count > 0 ? wordReach(DEMO_WORD.slice(0, count)) : null;
+
   return (
     <View style={BaseStyle.alignItemsCenter}>
       <View style={[BaseStyle.flexDirectionRow, BaseStyle.justifyContentCenter]}>
@@ -153,8 +157,8 @@ const FlipDemo = () => {
           <HiddenCard
             key={i}
             letter={letter}
-            width={wp(12)}
-            height={wp(14)}
+            width={wp(18)}
+            height={wp(20)}
             colorIndex={i}
             open={i < count}
             disabled
@@ -162,20 +166,27 @@ const FlipDemo = () => {
         ))}
       </View>
       <View style={[BaseStyle.flexDirectionRow, BaseStyle.justifyContentCenter, styles.demoSlots]}>
-        {[...DEMO_WORD].map((letter, i) => (
-          <AnswerSlot key={i} letter={i < count ? letter : ''} status={null} />
+        {Array.from({ length: longestWordLength() }, (_, i) => (
+          <AnswerSlot
+            key={i}
+            letter={i < count ? DEMO_WORD[i] : ''}
+            status={null}
+            highlight={reach !== null && i >= count && i < reach}
+            faded={reach !== null && i >= count && i >= reach}
+          />
         ))}
       </View>
     </View>
   );
 };
 
-// Slide 3: one word spelled right, one that goes wrong on its last letter.
+// Slide 3: a word spelled right stays open and green; a start no word has marks
+// the last letter red, and that box closes again.
 const ResultDemo = () => (
   <View style={BaseStyle.alignItemsCenter}>
     <View style={[BaseStyle.flexDirectionRow, BaseStyle.alignItemsCenter]}>
       {[...DEMO_WORD].map((letter, i) => (
-        <AnswerSlot key={i} letter={letter} status="win" />
+        <HiddenCard key={i} letter={letter} width={wp(14)} height={wp(16)} colorIndex={i} open found disabled />
       ))}
       <Text style={[styles.verdict, { color: gameWinColor }, style.fontSizeLarge2x, style.fontWeightBlack]}>
         {TEXTS.tick}

@@ -26,6 +26,9 @@ export const SPLASH_START_SCALE = 0.3;
 
 export const POINTS_PER_WORD = 10;
 
+// How many times the Help button can be used on one grid.
+export const HELP_LIMIT = 3;
+
 // Word-match game: the letters the player sees are shown; the words they have to
 // spell stay hidden in WORDS.
 // The grid of covered boxes: its size, the letters used to fill the boxes that
@@ -34,6 +37,14 @@ export const GRID_COLUMNS = 5;
 export const GRID_ROWS = 9;
 export const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 export const CARD_FLIP_DURATION = 350;
+
+// A box already used in the word being spelled, and a listed word that no longer
+// matches what has been spelled, are both shown faded by this much.
+export const USED_CARD_OPACITY = 0.4;
+export const DIMMED_CHIP_OPACITY = 0.3;
+
+// A rack slot no word can reach any more, given the letters spelled so far.
+export const SLOT_FADED_OPACITY = 0.25;
 
 // The glint that crosses a covered box: how long a pass takes, and the range the
 // wait before the next one is picked from (each box picks its own, so the grid
@@ -65,27 +76,27 @@ export const ONBOARDING_SLIDES = [
   {
     id: '1',
     emoji: '🧩',
-    title: 'Find the Hidden Word',
-    text: 'A grid of covered boxes hides the letters of a secret word.',
+    title: 'Find the Hidden Words',
+    text: 'A grid of covered boxes hides freight and dispatch terms, like ETD, POD and FTL.',
   },
   {
     id: '2',
     emoji: '👆',
     title: 'Tap to Uncover',
-    text: 'Tap a box to uncover its letter. Each letter drops into the row below.',
+    text: 'Tap a box to uncover its letter. It drops into the row below, and the glowing slots show how long a word can still get.',
   },
   {
     id: '3',
     emoji: '🏆',
     title: 'Spell It Right',
-    text: 'If your letters stop matching any word, you lose. Spell a whole word to score points!',
+    text: 'A word you spell turns green and stays open. If the letters match no word, that box closes again and you carry on from there.',
   },
 ];
 
-// Onboarding demos. The word is only ever shown spelled out inside the demo; the
-// wrong example is a start that no word has.
-export const DEMO_WORD = 'HAZMAT';
-export const DEMO_WRONG = 'HAX';
+// Onboarding demos. Both must agree with WORDS: DEMO_WORD is one of the words,
+// and DEMO_WRONG is a start that no word has.
+export const DEMO_WORD = 'ETD';
+export const DEMO_WRONG = 'ES';
 export const DEMO_STEP_DURATION = 800;
 
 export const TEXTS = {
@@ -107,6 +118,13 @@ export const TEXTS = {
   wrongTitle: 'Wrong Word!',
   wrongMessage: 'Try again. Your score will be reset.',
   startAgain: 'Start Again',
+  help: 'Help',
+  helpIcon: '💡',
+  helpOverTitle: 'No Help Left',
+  helpOverMessage: 'Your help chances are over.',
+  helpNoneTitle: 'No Hint',
+  helpNoneMessage: 'No box left can continue this word.',
+  ok: 'OK',
   winTitle: 'Well Done!',
   nextWord: 'Next Word',
   matchHint: 'Tap a box to uncover its letter',

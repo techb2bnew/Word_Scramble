@@ -16,6 +16,7 @@ import {
 } from '../constant/Color';
 import {
   POINTS_PER_WORD,
+  HELP_LIMIT,
   STORAGE_KEYS,
   SHAKE_STEPS,
   SHAKE_STEP_DURATION,
@@ -25,11 +26,20 @@ import {
   TEXTS,
 } from '../constant/Constants';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from '../utils';
-import { dealRound, leadsToAWord, isWholeWord, longestWordLength } from '../utils/gameUtils';
+import {
+  dealRound,
+  leadsToAWord,
+  isWholeWord,
+  longestWordLength,
+  canSpellAnyWord,
+  wordReach,
+  nextLetters,
+} from '../utils/gameUtils';
 import { getNumber, setNumber } from '../utils/storage';
 import { playTap, playRight, playWrong } from '../utils/feedback';
 import HiddenCard, { CARD_MARGIN } from '../components/HiddenCard';
 import AnswerPanel from '../components/AnswerPanel';
+import HelpButton from '../components/HelpButton';
 import ResultModal from '../components/Modals/ResultModal';
 
 // A still grid of covered boxes; the player taps them one by one and each box
@@ -43,13 +53,23 @@ const GRID_PADDING = wp(3);
 const WordMatchScreen = () => {
   const [round, setRound] = useState(() => dealRound());
   const [roundKey, setRoundKey] = useState(0);
-  const [picked, setPicked] = useState([]); // tiles, in the order they were tapped
+  const [picked, setPicked] = useState([]); // tiles in the word being spelled, in tap order
+  const [revealed, setRevealed] = useState([]); // ids of boxes that have been uncovered
+  const [found, setFound] = useState([]); // ids of boxes in words already spelled
+  const [helpLeft, setHelpLeft] = useState(HELP_LIMIT);
+  const [hintIds, setHintIds] = useState([]); // boxes the last Help ringed
+  const [notice, setNotice] = useState(null); // 'over' | 'none' | null
   const [result, setResult] = useState(null); // 'win' | 'lose' | null
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(0);
   const [arena, setArena] = useState({ w: 0, h: 0 });
   const shake = useRef(new Animated.Value(0)).current;
   const crossScale = useRef(new Animated.Value(0)).current;
+
+  // How far the words that are still possible can go. After `E`, every word that
+  // starts with it is 3 letters long, so only the next 2 slots stay lit.
+  const spelled = picked.map((t) => t.ch).join('');
+  const reach = spelled && !result ? wordReach(spelled) : null;
 
   // Boxes are sized to fill the play area, both ways, so a grid of any size fits
   // any phone. They are wider than tall once there are more rows than columns.
@@ -65,6 +85,10 @@ const WordMatchScreen = () => {
   const startRound = useCallback((previousTarget) => {
     setRound(dealRound(previousTarget));
     setPicked([]);
+    setRevealed([]);
+    setFound([]);
+    setHintIds([]);
+    setHelpLeft(HELP_LIMIT);
     setResult(null);
     setRoundKey((k) => k + 1);
   }, []);
@@ -85,8 +109,9 @@ const WordMatchScreen = () => {
     ).start();
   };
 
-  const onRight = () => {
+  const onRight = (wordTiles) => {
     playRight();
+    setFound((ids) => [...ids, ...wordTiles.map((t) => t.id)]);
     const newScore = score + POINTS_PER_WORD;
     setScore(newScore);
     if (newScore > best) {
@@ -96,16 +121,39 @@ const WordMatchScreen = () => {
     setResult('win');
   };
 
+  // Rings every box that is free and holds a letter that can come next. The ring
+  // stays until the player taps a box. Using it up, or finding nothing to ring,
+  // is told in a popup instead.
+  const showHint = () => {
+    if (result) return;
+    if (!helpLeft) {
+      setNotice('over');
+      return;
+    }
+    const next = nextLetters(spelled);
+    const ids = round.tiles
+      .filter((t) => !picked.some((p) => p.id === t.id) && !found.includes(t.id) && next.has(t.ch.toUpperCase()))
+      .map((t) => t.id);
+    if (!ids.length) {
+      setNotice('none');
+      return;
+    }
+    setHintIds(ids);
+    setHelpLeft((n) => n - 1);
+  };
+
   const openTile = (tile) => {
     if (result || picked.some((p) => p.id === tile.id)) return;
+    setHintIds([]);
     const nextPicked = [...picked, tile];
     setPicked(nextPicked);
-    const typed = nextPicked.map((t) => t.ch).join('');
+    setRevealed((ids) => (ids.includes(tile.id) ? ids : [...ids, tile.id]));
+    const nextSpelled = nextPicked.map((t) => t.ch).join('');
 
-    if (!leadsToAWord(typed)) {
+    if (!leadsToAWord(nextSpelled)) {
       onWrong(); // no hidden word starts like this
-    } else if (isWholeWord(typed)) {
-      onRight();
+    } else if (isWholeWord(nextSpelled)) {
+      onRight(nextPicked);
     } else {
       playTap();
     }
@@ -125,7 +173,10 @@ const WordMatchScreen = () => {
         </View>
       </View>
 
-      <Text style={[styles.hint, style.fontSizeNormal, BaseStyle.textAlign]}>{TEXTS.matchHint}</Text>
+      <View style={[BaseStyle.flexDirectionRow, BaseStyle.alignItemsCenter, BaseStyle.justifyContentSpaceBetween, styles.hintRow]}>
+        <Text style={[styles.hint, style.fontSizeNormal]}>{TEXTS.matchHint}</Text>
+        <HelpButton left={helpLeft} onPress={showHint} />
+      </View>
 
       <View
         style={[BaseStyle.flex, BaseStyle.alignJustifyCenter, styles.arena]}
@@ -143,7 +194,10 @@ const WordMatchScreen = () => {
                 width={cardWidth}
                 height={cardHeight}
                 colorIndex={tile.id}
-                open={picked.some((p) => p.id === tile.id)}
+                open={revealed.includes(tile.id)}
+                used={picked.some((p) => p.id === tile.id)}
+                found={found.includes(tile.id)}
+                hint={hintIds.includes(tile.id)}
                 disabled={!!result}
                 onPress={() => openTile(tile)}
               />
@@ -152,7 +206,7 @@ const WordMatchScreen = () => {
         )}
       </View>
 
-      <AnswerPanel word={round.target} length={longestWordLength()} picked={picked} result={result} shake={shake} />
+      <AnswerPanel word={round.target} length={longestWordLength()} reach={reach} picked={picked} result={result} shake={shake} />
 
       {result === 'lose' && (
         <Animated.View
@@ -164,6 +218,15 @@ const WordMatchScreen = () => {
       )}
 
       <ResultModal
+        visible={notice !== null}
+        icon={TEXTS.helpIcon}
+        iconColor={gameAccentColor}
+        title={notice === 'over' ? TEXTS.helpOverTitle : TEXTS.helpNoneTitle}
+        message={notice === 'over' ? TEXTS.helpOverMessage : TEXTS.helpNoneMessage}
+        buttonText={TEXTS.ok}
+        onPress={() => setNotice(null)}
+      />
+      <ResultModal
         visible={result === 'lose'}
         icon={TEXTS.cross}
         iconColor={gameLoseColor}
@@ -171,8 +234,14 @@ const WordMatchScreen = () => {
         message={TEXTS.wrongMessage}
         buttonText={TEXTS.startAgain}
         onPress={() => {
+          // Only the letter that was wrong is taken back: its box is covered again and
+          // it leaves the rack. The letters before it stay spelled and their boxes
+          // stay open, and the grid itself is untouched. The score starts over.
+          const wrong = picked[picked.length - 1];
           setScore(0);
-          startRound(round.target);
+          setPicked((tiles) => tiles.slice(0, -1));
+          setRevealed((ids) => ids.filter((id) => id !== wrong.id));
+          setResult(null);
         }}
       />
       <ResultModal
@@ -182,7 +251,17 @@ const WordMatchScreen = () => {
         title={`${TEXTS.winTitle} +${POINTS_PER_WORD}`}
         message={picked.map((t) => t.ch).join('')}
         buttonText={TEXTS.nextWord}
-        onPress={() => startRound(round.target)}
+        onPress={() => {
+          // Same grid, with the word just spelled left open and marked, for as long
+          // as the boxes still holding letters can make another word.
+          const left = round.tiles.filter((t) => !found.includes(t.id));
+          if (canSpellAnyWord(left)) {
+            setPicked([]);
+            setResult(null);
+          } else {
+            startRound(round.target);
+          }
+        }}
       />
     </SafeAreaView>
   );
@@ -201,7 +280,8 @@ const styles = StyleSheet.create({
   },
   badgeLabel: { color: gameAccentColor, letterSpacing: 1 },
   badgeValue: { color: gameTextColor },
-  hint: { color: gameMutedTextColor, marginTop: hp(2), marginBottom: hp(1.5) },
+  hintRow: { marginHorizontal: wp(5), marginTop: hp(2), marginBottom: hp(1.5) },
+  hint: { flex: 1, color: gameMutedTextColor },
   arena: {
     marginHorizontal: wp(5),
     borderRadius: wp(6),
