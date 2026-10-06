@@ -100,8 +100,8 @@ export const DEMO_WRONG = 'ES';
 export const DEMO_STEP_DURATION = 800;
 
 export const TEXTS = {
-  appName: 'Word Scramble',
-  splashSub: 'SCRAMBLE',
+  appName: 'Word Haul',
+  splashSub: 'HAUL',
   skip: 'Skip',
   next: 'Next',
   startPlaying: 'Start Playing',

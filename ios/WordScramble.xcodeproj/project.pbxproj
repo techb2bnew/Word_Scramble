@@ -22,12 +22,12 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = WordScramble/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = WordScramble/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = WordScramble/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		13E63282ADF70C7D3E7CCF00 /* correct.wav */ = {isa = PBXFileReference; includeInIndex = 1; name = correct.wav; path = ../src/assests/sounds/correct.wav; sourceTree = "<group>"; };
+		13E63282ADF70C7D3E7CCF00 /* correct.wav */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.wav; name = correct.wav; path = ../src/assests/sounds/correct.wav; sourceTree = "<group>"; };
 		1AD54A199A4CBB4C58A4A07E /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		3B4392A12AC88292D35C810B /* Pods-WordScramble.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordScramble.debug.xcconfig"; path = "Target Support Files/Pods-WordScramble/Pods-WordScramble.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-WordScramble.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordScramble.release.xcconfig"; path = "Target Support Files/Pods-WordScramble/Pods-WordScramble.release.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-WordScramble.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WordScramble.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		6197B2F50C4D9D3D92FD7318 /* wrong.wav */ = {isa = PBXFileReference; includeInIndex = 1; name = wrong.wav; path = ../src/assests/sounds/wrong.wav; sourceTree = "<group>"; };
+		6197B2F50C4D9D3D92FD7318 /* wrong.wav */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.wav; name = wrong.wav; path = ../src/assests/sounds/wrong.wav; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = WordScramble/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = WordScramble/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -211,9 +211,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WordScramble/Pods-WordScramble-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WordScramble/Pods-WordScramble-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -250,9 +254,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WordScramble/Pods-WordScramble-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WordScramble/Pods-WordScramble-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -294,7 +302,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.base2brand.wordscramble;
 				PRODUCT_NAME = WordScramble;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -324,7 +332,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.base2brand.wordscramble;
 				PRODUCT_NAME = WordScramble;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_VERSION = 5.0;

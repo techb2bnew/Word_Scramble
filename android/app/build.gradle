@@ -79,7 +79,7 @@ android {
 
     namespace "com.wordscramble"
     defaultConfig {
-        applicationId "com.wordscramble"
+        applicationId "com.base2brand.wordscramble"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
