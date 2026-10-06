@@ -4,6 +4,7 @@
 export const SCREENS = {
   SPLASH: 'splash',
   ONBOARDING: 'onboarding',
+  ROLE: 'role',
   GAME: 'game',
 };
 
@@ -11,6 +12,8 @@ export const SCREENS = {
 export const STORAGE_KEYS = {
   ONBOARDING_SEEN: 'onboardingSeen',
   BEST_SCORE: 'bestScore',
+  // + the role id: how many levels of that role are cleared (0 to 6).
+  PROGRESS_PREFIX: 'progress_',
 };
 
 // Vibration in milliseconds. A number is one buzz; an array alternates
@@ -19,6 +22,19 @@ export const VIBRATE_TAP = 10;
 export const VIBRATE_RIGHT = 40;
 export const VIBRATE_WRONG = [0, 90, 60, 90];
 
+// The celebration after the last level. Several animations take turns, a
+// different one each time: how many pieces fall in the confetti and the letter
+// rain, and how many sparks one firework throws.
+export const DONE_CONFETTI_COUNT = 32;
+export const DONE_RAIN_COUNT = 14;
+export const DONE_BURST_DOTS = 12;
+export const DONE_SPARKLE_COUNT = 10;
+
+// How the cards on the role screen come in: how long each takes, and the wait
+// between one and the next.
+export const ROLE_ENTER_DURATION = 450;
+export const ROLE_ENTER_STAGGER = 140;
+
 export const SPLASH_DURATION = 2200;
 export const SPLASH_FADE_DURATION = 800;
 export const SPLASH_SPRING_FRICTION = 4;
@@ -26,7 +42,7 @@ export const SPLASH_START_SCALE = 0.3;
 
 export const POINTS_PER_WORD = 10;
 
-// How many times the Help button can be used on one grid.
+// How many times the Help button can be used in one level.
 export const HELP_LIMIT = 3;
 
 // Word-match game: the letters the player sees are shown; the words they have to
@@ -35,7 +51,14 @@ export const HELP_LIMIT = 3;
 // are not part of the hidden word, and how long a box takes to flip open.
 export const GRID_COLUMNS = 5;
 export const GRID_ROWS = 9;
-export const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+// Letters and the two digits that appear in words (3PL, W9), so a digit in the
+// grid does not give a word away.
+export const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ39';
+
+// A grid hides the letters of some of the level's words, up to this many
+// letters in all; the rest of the boxes are filled with random ones. A level has
+// more words than fit, so it plays over several grids.
+export const EMBED_LETTER_BUDGET = 24;
 export const CARD_FLIP_DURATION = 350;
 
 // A box already used in the word being spelled, and a listed word that no longer
@@ -75,29 +98,46 @@ export const SPLASH_LOGO_LETTERS = ['W', 'O', 'R', 'D'];
 export const ONBOARDING_SLIDES = [
   {
     id: '1',
-    emoji: '🧩',
-    title: 'Find the Hidden Words',
-    text: 'A grid of covered boxes hides freight and dispatch terms, like ETD, POD and FTL.',
+    emoji: '🚛',
+    title: 'Pick Your Role',
+    text: 'Play as a Truck Dispatcher or a Freight Broker. Each role has its own 6 levels and its own progress.',
   },
   {
     id: '2',
+    emoji: '🧩',
+    title: 'Find the Hidden Terms',
+    text: 'A grid of covered boxes hides the freight and dispatch terms of your level. Find every one to clear it.',
+  },
+  {
+    id: '3',
     emoji: '👆',
     title: 'Tap to Uncover',
     text: 'Tap a box to uncover its letter. It drops into the row below, and the glowing slots show how long a word can still get.',
   },
   {
-    id: '3',
+    id: '4',
     emoji: '🏆',
     title: 'Spell It Right',
     text: 'A word you spell turns green and stays open. If the letters match no word, that box closes again and you carry on from there.',
   },
+  {
+    id: '5',
+    emoji: '💡',
+    title: 'Need a Hand?',
+    text: 'Tap Help to ring the boxes whose letter can come next. You get 3 helps in every level. Clear all 6 levels to finish your role!',
+  },
 ];
 
-// Onboarding demos. Both must agree with WORDS: DEMO_WORD is one of the words,
-// and DEMO_WRONG is a start that no word has.
+// Onboarding demos. DEMO_WORD must be one of DEMO_WORDS, and DEMO_WRONG a start
+// that none of them has.
+// Words the demo's glow and fade are worked out from, and how many slots it shows.
+export const DEMO_WORDS = ['ETA', 'ETD', 'ELD', 'EIR', 'POD', 'FTL'];
+export const DEMO_RACK_LENGTH = 6;
 export const DEMO_WORD = 'ETD';
 export const DEMO_WRONG = 'ES';
 export const DEMO_STEP_DURATION = 800;
+// How long the Help demo keeps its rings on, and off.
+export const DEMO_HELP_DURATION = 1500;
 
 export const TEXTS = {
   appName: 'Word Haul',
@@ -125,9 +165,26 @@ export const TEXTS = {
   helpNoneTitle: 'No Hint',
   helpNoneMessage: 'No box left can continue this word.',
   ok: 'OK',
+  chooseRole: 'Choose Your Role',
+  chooseRoleSub: 'Each role has its own 6 levels.',
+  roleStart: 'Start',
+  roleContinue: 'Continue',
+  rolePlayAgain: 'Play again',
+  roleFooter: 'You can switch role any time with the back arrow.',
+  levelOf: 'of',
+  levelWord: 'Level',
+  allDone: 'All levels completed',
+  words: 'words',
+  back: '‹',
+  trophy: '🏆',
+  levelCompleteTitle: 'Complete!',
+  levelCompleteMessage: 'You found every term in this level.',
+  nextLevel: 'Next Level',
+  doneTitle: 'You Have Completed All Levels!',
+  doneScore: 'Final score',
+  backToRoles: 'Back to Roles',
   winTitle: 'Well Done!',
   nextWord: 'Next Word',
-  matchHint: 'Tap a box to uncover its letter',
 };
 
 // Letters roaming the play area, in points per second. Each letter gets a

@@ -21,10 +21,11 @@ import { widthPercentageToDP as wp } from '../utils';
 // a face colour with a thicker, darker bottom edge. status: 'win' | 'lose' | null
 // An empty slot can also be `highlight`ed (a word can still reach it) or `faded`
 // (none can).
-const AnswerSlot = ({ letter, status, highlight, faded }) => (
+const AnswerSlot = ({ letter, status, highlight, faded, width }) => (
   <View
     style={[
       styles.slot,
+      width ? { width } : null,
       BaseStyle.alignJustifyCenter,
       !letter && styles.empty,
       highlight && styles.highlight,

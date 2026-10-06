@@ -112,20 +112,51 @@ import {
   gameDotInactiveColor,
   gameWinColor,
   gameLoseColor,
+  gameCardColor,
+  gameRoleDispatcherColor,
+  gameRoleBrokerColor,
 } from '../constant/Color';
 import {
   ONBOARDING_SLIDES,
   TEXTS,
   DEMO_WORD,
   DEMO_WRONG,
+  DEMO_WORDS,
+  DEMO_RACK_LENGTH,
   DEMO_STEP_DURATION,
+  DEMO_HELP_DURATION,
+  HELP_LIMIT,
 } from '../constant/Constants';
-import { longestWordLength, wordReach } from '../utils/gameUtils';
+import { wordReach } from '../utils/gameUtils';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from '../utils';
+import { ROLE_LIST, ROLE_IDS } from '../constant/Levels';
 import HiddenCard from '../components/HiddenCard';
+import HelpButton from '../components/HelpButton';
 import AnswerSlot from '../components/AnswerSlot';
 
-// Slide 1: a few covered boxes, glinting. Their letters are never shown.
+// Slide 1: the two roles to pick from, each in its own colour.
+const ROLE_DEMO_COLORS = {
+  [ROLE_IDS.DISPATCHER]: gameRoleDispatcherColor,
+  [ROLE_IDS.BROKER]: gameRoleBrokerColor,
+};
+
+const RoleDemo = () => (
+  <View style={BaseStyle.alignItemsCenter}>
+    {ROLE_LIST.map((role) => (
+      <View
+        key={role.id}
+        style={[styles.roleChip, BaseStyle.flexDirectionRow, BaseStyle.alignItemsCenter, { borderColor: ROLE_DEMO_COLORS[role.id] }]}
+      >
+        <View style={[styles.roleIcon, BaseStyle.alignJustifyCenter, { backgroundColor: ROLE_DEMO_COLORS[role.id] }]}>
+          <Text style={styles.roleEmoji}>{role.icon}</Text>
+        </View>
+        <Text style={[styles.roleName, style.fontSizeMedium1x, style.fontWeightBold]}>{role.name}</Text>
+      </View>
+    ))}
+  </View>
+);
+
+// Slide 2: a few covered boxes, glinting. Their letters are never shown.
 const CoverDemo = () => (
   <View style={[BaseStyle.flexDirectionRow, BaseStyle.flexWrap, BaseStyle.justifyContentCenter, styles.coverGrid]}>
     {Array.from({ length: 6 }, (_, i) => (
@@ -148,7 +179,7 @@ const FlipDemo = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const reach = count > 0 ? wordReach(DEMO_WORD.slice(0, count)) : null;
+  const reach = count > 0 ? wordReach(DEMO_WORD.slice(0, count), DEMO_WORDS) : null;
 
   return (
     <View style={BaseStyle.alignItemsCenter}>
@@ -166,7 +197,7 @@ const FlipDemo = () => {
         ))}
       </View>
       <View style={[BaseStyle.flexDirectionRow, BaseStyle.justifyContentCenter, styles.demoSlots]}>
-        {Array.from({ length: longestWordLength() }, (_, i) => (
+        {Array.from({ length: DEMO_RACK_LENGTH }, (_, i) => (
           <AnswerSlot
             key={i}
             letter={i < count ? DEMO_WORD[i] : ''}
@@ -203,7 +234,42 @@ const ResultDemo = () => (
   </View>
 );
 
-const DEMOS = { 1: CoverDemo, 2: FlipDemo, 3: ResultDemo };
+// Slide 5: the Help button is pressed, rings appear round two boxes and one use
+// is spent; then it lets go and starts over.
+const HELP_DEMO_RINGED = [1, 4];
+
+const HelpDemo = () => {
+  const [pressed, setPressed] = useState(false);
+
+  useEffect(() => {
+    const timer = setInterval(() => setPressed((p) => !p), DEMO_HELP_DURATION);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <View style={BaseStyle.alignItemsCenter}>
+      <View style={[BaseStyle.flexDirectionRow, BaseStyle.flexWrap, BaseStyle.justifyContentCenter, styles.helpGrid]}>
+        {Array.from({ length: 6 }, (_, i) => (
+          <HiddenCard
+            key={i}
+            letter=""
+            width={wp(18)}
+            height={wp(14)}
+            colorIndex={i}
+            open={false}
+            hint={pressed && HELP_DEMO_RINGED.includes(i)}
+            disabled
+          />
+        ))}
+      </View>
+      <View style={styles.helpButton}>
+        <HelpButton left={pressed ? HELP_LIMIT - 1 : HELP_LIMIT} onPress={() => {}} />
+      </View>
+    </View>
+  );
+};
+
+const DEMOS = { 1: RoleDemo, 2: CoverDemo, 3: FlipDemo, 4: ResultDemo, 5: HelpDemo };
 
 const OnboardingScreen = ({ onDone }) => {
   const [index, setIndex] = useState(0);
@@ -280,6 +346,19 @@ const styles = StyleSheet.create({
     marginBottom: hp(3),
   },
   coverGrid: { width: wp(70) },
+  roleChip: {
+    width: wp(72),
+    marginVertical: hp(0.8),
+    padding: wp(3),
+    borderRadius: wp(5),
+    borderWidth: 2,
+    backgroundColor: gameCardColor,
+  },
+  roleIcon: { width: wp(13), height: wp(13), borderRadius: wp(6.5) },
+  roleEmoji: { fontSize: wp(7) },
+  roleName: { color: gameTextColor, marginLeft: wp(3) },
+  helpGrid: { width: wp(66) },
+  helpButton: { marginTop: hp(2) },
   demoSlots: { marginTop: hp(2) },
   wrongRow: { marginTop: hp(2) },
   verdict: { marginLeft: spacings.xLarge },

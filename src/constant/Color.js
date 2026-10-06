@@ -185,3 +185,7 @@ export const gameProgressTrackColor = authBorderColor;
 // The back of a covered box: a faint gold frame and a passing glint.
 export const gameCoverFrameColor = 'rgba(255,169,40,0.35)';
 export const gameShimmerColor = 'rgba(255,255,255,0.18)';
+
+// One colour per role, used on its card on the role screen.
+export const gameRoleDispatcherColor = brightTurquoiseColor;
+export const gameRoleBrokerColor = goldColor;

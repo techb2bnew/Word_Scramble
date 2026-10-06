@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BaseStyle } from '../constant/Style';
 import { style, spacings } from '../constant/Fonts';
@@ -27,9 +27,9 @@ import {
 } from '../constant/Constants';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from '../utils';
 import {
-  dealRound,
+  dealGrid,
   leadsToAWord,
-  isWholeWord,
+  wholeWord,
   longestWordLength,
   canSpellAnyWord,
   wordReach,
@@ -41,17 +41,30 @@ import HiddenCard, { CARD_MARGIN } from '../components/HiddenCard';
 import AnswerPanel from '../components/AnswerPanel';
 import HelpButton from '../components/HelpButton';
 import ResultModal from '../components/Modals/ResultModal';
+import CompletionModal from '../components/Modals/CompletionModal';
 
-// A still grid of covered boxes; the player taps them one by one and each box
-// turns over, its letter landing in the rack.
-// After every letter, what has been spelled so far must still be the start of
-// one of the hidden words (WORDS), or the round is lost. Spelling a whole hidden
-// word wins it. The words themselves are never shown.
+// A level is a list of words to find. The grid of covered boxes holds the letters
+// of some of them; the player taps boxes one by one and each box turns over, its
+// letter landing in the rack. After every letter, what has been spelled so far
+// must still be the start of a word not found yet, or the letter is wrong.
+// Spelling a whole word finds it. Words are found over as many grids as it takes.
+//
+// Props: the role and which of its levels this is, the score to carry in, and
+// what to do when a level is cleared, when the next one is asked for, and on exit.
+
 // Room kept free inside the play area, so the grid never touches its border.
 const GRID_PADDING = wp(3);
 
-const WordMatchScreen = () => {
-  const [round, setRound] = useState(() => dealRound());
+const WordMatchScreen = ({ role, levelIndex, startScore, onLevelComplete, onNextLevel, onExit }) => {
+  const level = role.levels[levelIndex];
+  const words = level.words;
+  const isLastLevel = levelIndex === role.levels.length - 1;
+
+  const [foundWords, setFoundWords] = useState([]); // words of this level found so far
+  const unfound = words.filter((w) => !foundWords.includes(w));
+  const levelCleared = unfound.length === 0;
+
+  const [round, setRound] = useState(() => dealGrid(words));
   const [roundKey, setRoundKey] = useState(0);
   const [picked, setPicked] = useState([]); // tiles in the word being spelled, in tap order
   const [revealed, setRevealed] = useState([]); // ids of boxes that have been uncovered
@@ -60,7 +73,7 @@ const WordMatchScreen = () => {
   const [hintIds, setHintIds] = useState([]); // boxes the last Help ringed
   const [notice, setNotice] = useState(null); // 'over' | 'none' | null
   const [result, setResult] = useState(null); // 'win' | 'lose' | null
-  const [score, setScore] = useState(0);
+  const [score, setScore] = useState(startScore);
   const [best, setBest] = useState(0);
   const [arena, setArena] = useState({ w: 0, h: 0 });
   const shake = useRef(new Animated.Value(0)).current;
@@ -69,7 +82,7 @@ const WordMatchScreen = () => {
   // How far the words that are still possible can go. After `E`, every word that
   // starts with it is 3 letters long, so only the next 2 slots stay lit.
   const spelled = picked.map((t) => t.ch).join('');
-  const reach = spelled && !result ? wordReach(spelled) : null;
+  const reach = spelled && !result ? wordReach(spelled, unfound) : null;
 
   // Boxes are sized to fill the play area, both ways, so a grid of any size fits
   // any phone. They are wider than tall once there are more rows than columns.
@@ -82,16 +95,17 @@ const WordMatchScreen = () => {
     getNumber(STORAGE_KEYS.BEST_SCORE).then((saved) => setBest((b) => Math.max(b, saved)));
   }, []);
 
-  const startRound = useCallback((previousTarget) => {
-    setRound(dealRound(previousTarget));
+  // A fresh grid for the words still to be found. Help is not given back: its 3
+  // uses are for the whole level.
+  const newGrid = () => {
+    setRound(dealGrid(unfound));
     setPicked([]);
     setRevealed([]);
     setFound([]);
     setHintIds([]);
-    setHelpLeft(HELP_LIMIT);
     setResult(null);
     setRoundKey((k) => k + 1);
-  }, []);
+  };
 
   const onWrong = () => {
     playWrong();
@@ -109,9 +123,11 @@ const WordMatchScreen = () => {
     ).start();
   };
 
-  const onRight = (wordTiles) => {
+  const onRight = (wordTiles, word) => {
     playRight();
     setFound((ids) => [...ids, ...wordTiles.map((t) => t.id)]);
+    setFoundWords((list) => [...list, word]);
+    if (unfound.length === 1) onLevelComplete(levelIndex);
     const newScore = score + POINTS_PER_WORD;
     setScore(newScore);
     if (newScore > best) {
@@ -130,7 +146,7 @@ const WordMatchScreen = () => {
       setNotice('over');
       return;
     }
-    const next = nextLetters(spelled);
+    const next = nextLetters(spelled, unfound);
     const ids = round.tiles
       .filter((t) => !picked.some((p) => p.id === t.id) && !found.includes(t.id) && next.has(t.ch.toUpperCase()))
       .map((t) => t.id);
@@ -150,10 +166,11 @@ const WordMatchScreen = () => {
     setRevealed((ids) => (ids.includes(tile.id) ? ids : [...ids, tile.id]));
     const nextSpelled = nextPicked.map((t) => t.ch).join('');
 
-    if (!leadsToAWord(nextSpelled)) {
-      onWrong(); // no hidden word starts like this
-    } else if (isWholeWord(nextSpelled)) {
-      onRight(nextPicked);
+    const whole = wholeWord(nextSpelled, unfound);
+    if (!leadsToAWord(nextSpelled, unfound)) {
+      onWrong(); // no word still to be found starts like this
+    } else if (whole) {
+      onRight(nextPicked, whole);
     } else {
       playTap();
     }
@@ -166,7 +183,7 @@ const WordMatchScreen = () => {
           <Text style={[styles.badgeLabel, style.fontSizeExtraSmall, style.fontWeightMedium1x]}>{TEXTS.score}</Text>
           <Text style={[styles.badgeValue, style.fontSizeLarge, style.fontWeightBold]}>{score}</Text>
         </View>
-        <Text style={[styles.title, style.fontSizeLarge, style.fontWeightBold]}>{TEXTS.appName}</Text>
+        <Text style={[styles.title, style.fontSizeLarge, style.fontWeightBold]}>{level.title}</Text>
         <View style={[styles.badge, BaseStyle.alignItemsCenter]}>
           <Text style={[styles.badgeLabel, style.fontSizeExtraSmall, style.fontWeightMedium1x]}>{TEXTS.best}</Text>
           <Text style={[styles.badgeValue, style.fontSizeLarge, style.fontWeightBold]}>{best}</Text>
@@ -174,7 +191,12 @@ const WordMatchScreen = () => {
       </View>
 
       <View style={[BaseStyle.flexDirectionRow, BaseStyle.alignItemsCenter, BaseStyle.justifyContentSpaceBetween, styles.hintRow]}>
-        <Text style={[styles.hint, style.fontSizeNormal]}>{TEXTS.matchHint}</Text>
+        <Pressable style={styles.back} onPress={onExit} hitSlop={wp(3)}>
+          <Text style={[styles.backText, style.fontSizeLarge2x, style.fontWeightBold]}>{TEXTS.back}</Text>
+        </Pressable>
+        <Text style={[styles.hint, style.fontSizeNormal2x, style.fontWeightMedium1x]}>
+          {foundWords.length}/{words.length} {TEXTS.words}
+        </Text>
         <HelpButton left={helpLeft} onPress={showHint} />
       </View>
 
@@ -206,7 +228,7 @@ const WordMatchScreen = () => {
         )}
       </View>
 
-      <AnswerPanel word={round.target} length={longestWordLength()} reach={reach} picked={picked} result={result} shake={shake} />
+      <AnswerPanel length={longestWordLength(words)} reach={reach} picked={picked} result={result} shake={shake} />
 
       {result === 'lose' && (
         <Animated.View
@@ -245,7 +267,7 @@ const WordMatchScreen = () => {
         }}
       />
       <ResultModal
-        visible={result === 'win'}
+        visible={result === 'win' && !levelCleared}
         icon={TEXTS.tick}
         iconColor={gameWinColor}
         title={`${TEXTS.winTitle} +${POINTS_PER_WORD}`}
@@ -253,15 +275,30 @@ const WordMatchScreen = () => {
         buttonText={TEXTS.nextWord}
         onPress={() => {
           // Same grid, with the word just spelled left open and marked, for as long
-          // as the boxes still holding letters can make another word.
+          // as the boxes still holding letters can make a word not found yet.
           const left = round.tiles.filter((t) => !found.includes(t.id));
-          if (canSpellAnyWord(left)) {
+          if (canSpellAnyWord(left, unfound)) {
             setPicked([]);
             setResult(null);
           } else {
-            startRound(round.target);
+            newGrid();
           }
         }}
+      />
+      <ResultModal
+        visible={result === 'win' && levelCleared && !isLastLevel}
+        icon={TEXTS.trophy}
+        iconColor={gameAccentColor}
+        title={`${level.title} ${TEXTS.levelCompleteTitle}`}
+        message={TEXTS.levelCompleteMessage}
+        buttonText={TEXTS.nextLevel}
+        onPress={() => onNextLevel(score)}
+      />
+      <CompletionModal
+        visible={result === 'win' && levelCleared && isLastLevel}
+        role={role}
+        score={score}
+        onDone={onExit}
       />
     </SafeAreaView>
   );
@@ -281,6 +318,8 @@ const styles = StyleSheet.create({
   badgeLabel: { color: gameAccentColor, letterSpacing: 1 },
   badgeValue: { color: gameTextColor },
   hintRow: { marginHorizontal: wp(5), marginTop: hp(2), marginBottom: hp(1.5) },
+  back: { paddingRight: spacings.xxxLarge },
+  backText: { color: gameAccentColor },
   hint: { flex: 1, color: gameMutedTextColor },
   arena: {
     marginHorizontal: wp(5),

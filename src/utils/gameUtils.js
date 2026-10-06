@@ -1,4 +1,10 @@
-import { WORDS, GRID_COLUMNS, GRID_ROWS, ALPHABET } from '../constant/Constants';
+import {
+  WORDS,
+  GRID_COLUMNS,
+  GRID_ROWS,
+  ALPHABET,
+  EMBED_LETTER_BUDGET,
+} from '../constant/Constants';
 
 // Letters become { id, ch } so two identical letters (the H in SHUBHAM) can be
 // told apart when one of them is tapped.
@@ -29,11 +35,50 @@ export const randomBetween = (min, max) => min + Math.random() * (max - min);
 
 const sameText = (a, b) => a.toLowerCase() === b.toLowerCase();
 
-// Case does not matter, so a word typed in any case still matches.
-export const leadsToAWord = (typed) =>
-  WORDS.some((word) => word.toLowerCase().startsWith(typed.toLowerCase()));
+const startsWith = (word, typed) => word.toLowerCase().startsWith(typed.toLowerCase());
 
-export const isWholeWord = (typed) => WORDS.some((word) => sameText(word, typed));
+// Every check below is given the words still to be found, so a word already
+// found no longer counts. Case does not matter.
+export const leadsToAWord = (typed, words) => words.some((word) => startsWith(word, typed));
+
+export const wholeWord = (typed, words) => words.find((word) => sameText(word, typed));
+
+// How many letters the longest word starting with `spelled` has. After `E`, if
+// every word starting with it is 3 letters long, the answer is 3. Zero when no
+// word starts that way.
+export const wordReach = (spelled, words) =>
+  Math.max(0, ...words.filter((w) => startsWith(w, spelled)).map((w) => w.length));
+
+// The letters that can come next after `spelled`: for ET that is A and D (ETA,
+// ETD). Capitals, since the grid is in capitals.
+export const nextLetters = (spelled, words) =>
+  new Set(
+    words
+      .filter((w) => startsWith(w, spelled) && w.length > spelled.length)
+      .map((w) => w[spelled.length].toUpperCase()),
+  );
+
+// How many rack slots a level needs: its longest word, whether or not that word
+// has been found, so the slots do not change while the level is played.
+export const longestWordLength = (words) => Math.max(...words.map((word) => word.length));
+
+// Whether the boxes given still hold the letters of at least one of the words.
+// Order does not matter: the player can tap the boxes in any order, so a word
+// whose letters are all there can always be spelled.
+export const canSpellAnyWord = (tiles, words) => {
+  const have = {};
+  tiles.forEach((tile) => {
+    const ch = tile.ch.toUpperCase();
+    have[ch] = (have[ch] || 0) + 1;
+  });
+  return words.some((word) => {
+    const need = {};
+    return [...word.toUpperCase()].every((ch) => {
+      need[ch] = (need[ch] || 0) + 1;
+      return need[ch] <= (have[ch] || 0);
+    });
+  });
+};
 
 const shuffleList = (list) => {
   const out = [...list];
@@ -44,59 +89,22 @@ const shuffleList = (list) => {
   return out;
 };
 
-// Whether the boxes given still hold the letters of at least one word. Order
-// does not matter: the player can tap the boxes in any order, so a word whose
-// letters are all there can always be spelled.
-export const canSpellAnyWord = (tiles) => {
-  const have = {};
-  tiles.forEach((tile) => {
-    const ch = tile.ch.toUpperCase();
-    have[ch] = (have[ch] || 0) + 1;
+// Deals a grid of covered boxes. The letters of some of the words still to be
+// found are in it (as many as EMBED_LETTER_BUDGET allows, picked at random), so
+// those words can always be spelled; every other box holds a random letter. A
+// word whose letters do not fit is left for a later grid. All capitals.
+export const dealGrid = (words) => {
+  const chosen = [];
+  let letters = 0;
+  shuffleList(words).forEach((word) => {
+    if (chosen.length && letters + word.length > EMBED_LETTER_BUDGET) return;
+    chosen.push(word);
+    letters += word.length;
   });
-  return WORDS.some((word) => {
-    const need = {};
-    return [...word.toUpperCase()].every((ch) => {
-      need[ch] = (need[ch] || 0) + 1;
-      return need[ch] <= (have[ch] || 0);
-    });
-  });
-};
 
-// How many letters the longest word starting with `spelled` has. After `E`, every
-// word that starts with it is 3 letters long, so the answer is 3. Zero when no
-// word starts that way.
-export const wordReach = (spelled) =>
-  Math.max(
-    0,
-    ...WORDS.filter((w) => w.toLowerCase().startsWith(spelled.toLowerCase())).map((w) => w.length),
-  );
+  const chars = chosen.flatMap((word) => [...word.toUpperCase()]);
+  const fillers = Math.max(GRID_COLUMNS * GRID_ROWS - chars.length, 0);
+  for (let i = 0; i < fillers; i++) chars.push(ALPHABET[Math.floor(Math.random() * ALPHABET.length)]);
 
-// The letters that can come next after `spelled`: for ET that is A and D (ETA,
-// ETD). Capitals, since the grid is in capitals.
-export const nextLetters = (spelled) =>
-  new Set(
-    WORDS.filter((w) => w.toLowerCase().startsWith(spelled.toLowerCase()) && w.length > spelled.length).map((w) =>
-      w[spelled.length].toUpperCase(),
-    ),
-  );
-
-// How many rack slots the game needs. It is the longest hidden word, not the
-// length of this round's word, so the slots do not give the word away.
-export const longestWordLength = () => Math.max(...WORDS.map((word) => word.length));
-
-// Sets up one round of the word-match game: a full grid of covered boxes. The
-// letters of one hidden word are in it, so a round can always be finished, and
-// every other box holds a random letter. All letters are capitals. The word
-// itself is never shown.
-export const dealRound = (previousTarget) => {
-  const options = WORDS.filter((word) => word !== previousTarget);
-  const pool = options.length ? options : WORDS;
-  const target = pool[Math.floor(Math.random() * pool.length)];
-
-  const fillers = Math.max(GRID_COLUMNS * GRID_ROWS - target.length, 0);
-  const letters = [...target];
-  for (let i = 0; i < fillers; i++) letters.push(ALPHABET[Math.floor(Math.random() * ALPHABET.length)]);
-
-  const tiles = shuffleList(letters).map((ch, id) => ({ id, ch: ch.toUpperCase() }));
-  return { target, tiles };
+  return { tiles: shuffleList(chars).map((ch, id) => ({ id, ch })) };
 };
