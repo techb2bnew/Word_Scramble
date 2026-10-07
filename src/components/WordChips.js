@@ -6,7 +6,7 @@ import {
   gameBadgeBgColor,
   gameArenaBorderColor,
   gameAccentColor,
-  gameBgColor,
+  gameOnAccentColor,
   gameTextColor,
 } from '../constant/Color';
 import { DIMMED_CHIP_OPACITY } from '../constant/Constants';
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   chipActive: { backgroundColor: gameAccentColor, borderColor: gameAccentColor },
   chipFaded: { opacity: DIMMED_CHIP_OPACITY },
   text: { color: gameTextColor },
-  textActive: { color: gameBgColor },
+  textActive: { color: gameOnAccentColor },
 });
 
 export default WordChips;

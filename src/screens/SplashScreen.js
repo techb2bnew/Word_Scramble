@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 import { BaseStyle } from '../constant/Style';
 import { style, spacings } from '../constant/Fonts';
-import { gameBgColor, gameAccentColor, gameTextColor } from '../constant/Color';
+import { gameAccentColor, gameOnAccentColor, gameTileEdgeColor, roleTitleOnSky } from '../constant/Color';
 import {
   SPLASH_DURATION,
   SPLASH_FADE_DURATION,
@@ -12,6 +12,7 @@ import {
   TEXTS,
 } from '../constant/Constants';
 import { widthPercentageToDP as wp } from '../utils';
+import SkyBackdrop from '../components/SkyBackdrop';
 
 const SplashScreen = ({ onDone }) => {
   const scale = useRef(new Animated.Value(SPLASH_START_SCALE)).current;
@@ -27,7 +28,8 @@ const SplashScreen = ({ onDone }) => {
   }, [onDone, scale, opacity]);
 
   return (
-    <View style={[BaseStyle.flex, BaseStyle.alignJustifyCenter, styles.container]}>
+    <View style={[BaseStyle.flex, BaseStyle.alignJustifyCenter]}>
+      <SkyBackdrop variant="splash" />
       <Animated.View style={[BaseStyle.alignItemsCenter, { opacity, transform: [{ scale }] }]}>
         <View style={BaseStyle.flexDirectionRow}>
           {SPLASH_LOGO_LETTERS.map((letter) => (
@@ -47,16 +49,17 @@ const SplashScreen = ({ onDone }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: gameBgColor },
   tile: {
     width: wp(16),
     height: wp(16),
     margin: spacings.normal,
     backgroundColor: gameAccentColor,
+    borderBottomWidth: wp(1.6),
+    borderBottomColor: gameTileEdgeColor,
   },
-  letter: { color: gameBgColor },
+  letter: { color: gameOnAccentColor },
   sub: {
-    color: gameTextColor,
+    color: roleTitleOnSky,
     marginTop: spacings.xxxxLarge,
     letterSpacing: wp(2),
   },

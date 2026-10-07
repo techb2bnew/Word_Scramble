@@ -3,12 +3,13 @@ import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-nativ
 import { BaseStyle } from '../constant/Style';
 import { style, spacings } from '../constant/Fonts';
 import {
-  gameBadgeBgColor,
   gameAccentColor,
   gameTileTextColor,
   gameBubbleColors,
+  gameCoverColor,
   gameCoverFrameColor,
   gameWinColor,
+  gameWinEdgeColor,
   gameTextColor,
   gameShimmerColor,
   shadowColor,
@@ -19,6 +20,8 @@ import {
   SHIMMER_DURATION,
   SHIMMER_MIN_PAUSE,
   SHIMMER_MAX_PAUSE,
+  DEAL_STAGGER,
+  DEAL_SPRING_FRICTION,
 } from '../constant/Constants';
 import { widthPercentageToDP as wp } from '../utils';
 import { randomBetween } from '../utils/gameUtils';
@@ -32,9 +35,10 @@ export const CARD_MARGIN = spacings.small;
 // frame, a diamond and a glint that now and then crosses it. Tapping the box
 // turns it over to show its letter; the turn is about the vertical axis, with
 // the cover and the letter each hidden while they face away.
-const HiddenCard = ({ letter, width, height, open, used, found, hint, disabled, colorIndex, onPress }) => {
+const HiddenCard = ({ letter, width, height, open, used, found, hint, disabled, colorIndex, dealIndex, dealKey, onPress }) => {
   const flip = useRef(new Animated.Value(open ? 1 : 0)).current;
   const shimmer = useRef(new Animated.Value(0)).current;
+  const pop = useRef(new Animated.Value(dealIndex == null ? 1 : 0)).current;
   const pause = useRef(randomBetween(SHIMMER_MIN_PAUSE, SHIMMER_MAX_PAUSE)).current;
 
   useEffect(() => {
@@ -44,6 +48,19 @@ const HiddenCard = ({ letter, width, height, open, used, found, hint, disabled, 
       useNativeDriver: true,
     }).start();
   }, [open, flip]);
+
+  useEffect(() => {
+    if (dealIndex == null) return undefined;
+    pop.setValue(0);
+    const anim = Animated.spring(pop, {
+      toValue: 1,
+      delay: dealIndex * DEAL_STAGGER,
+      friction: DEAL_SPRING_FRICTION,
+      useNativeDriver: true,
+    });
+    anim.start();
+    return () => anim.stop();
+  }, [dealKey, dealIndex, pop]);
 
   // The glint only runs while the box is covered.
   useEffect(() => {
@@ -70,6 +87,11 @@ const HiddenCard = ({ letter, width, height, open, used, found, hint, disabled, 
   const diamond = Math.min(width, height) * 0.34;
 
   return (
+    <Animated.View
+      style={[
+        { opacity: pop, transform: [{ scale: pop }] },
+      ]}
+    >
     <Pressable
       style={[styles.card, { width, height }, used && styles.used]}
       disabled={used || found || disabled}
@@ -114,6 +136,7 @@ const HiddenCard = ({ letter, width, height, open, used, found, hint, disabled, 
       </Animated.View>
       {hint && <View pointerEvents="none" style={styles.hintRing} />}
     </Pressable>
+    </Animated.View>
   );
 };
 
@@ -126,18 +149,18 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    borderRadius: wp(2),
+    borderRadius: wp(3),
     backfaceVisibility: 'hidden',
     shadowColor,
-    shadowOpacity: 0.3,
-    shadowRadius: wp(1.5),
-    shadowOffset: { width: 0, height: wp(0.8) },
-    elevation: 4,
+    shadowOpacity: 0.35,
+    shadowRadius: wp(2),
+    shadowOffset: { width: 0, height: wp(1) },
+    elevation: 5,
   },
   cover: {
     overflow: 'hidden',
-    backgroundColor: gameBadgeBgColor,
-    borderWidth: 2,
+    backgroundColor: gameCoverColor,
+    borderWidth: 1.5,
     borderColor: gameAccentColor,
   },
   frame: {
@@ -156,19 +179,20 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '45deg' }],
   },
   glint: { position: 'absolute', left: 0, backgroundColor: gameShimmerColor },
-  found: { borderWidth: 2, borderColor: gameTextColor },
+  found: { borderWidth: 2, borderColor: gameWinEdgeColor },
   hintRing: {
     position: 'absolute',
     top: -wp(0.8),
     left: -wp(0.8),
     right: -wp(0.8),
     bottom: -wp(0.8),
-    borderRadius: wp(2.5),
-    borderWidth: 3,
-    borderColor: gameWinColor,
-    shadowColor: gameWinColor,
-    shadowOpacity: 0.9,
-    shadowRadius: wp(2),
+    borderRadius: wp(3.5),
+    borderWidth: 4,
+    borderColor: '#0D5C32',
+    backgroundColor: 'transparent',
+    shadowColor: '#0D5C32',
+    shadowOpacity: 0.95,
+    shadowRadius: wp(3),
     shadowOffset: { width: 0, height: 0 },
   },
   letter: { color: gameTileTextColor },

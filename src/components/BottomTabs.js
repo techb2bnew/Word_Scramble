@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     borderTopColor: gameArenaBorderColor,
     backgroundColor: gameCardColor,
   },
-  tab: { paddingTop: hp(1.5), paddingBottom: hp(1) },
+  tab: { paddingTop: hp(1.6), paddingBottom: hp(1.1) },
   pressed: { opacity: 0.5 },
   divider: { width: 1, marginVertical: spacings.xxxLarge, backgroundColor: gameArenaBorderColor },
   icon: { color: gameTextColor },

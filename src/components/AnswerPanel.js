@@ -6,6 +6,7 @@ import {
   gameRackBgColor,
   gameAccentColor,
   gameProgressTrackColor,
+  skyGlassBorder,
 } from '../constant/Color';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from '../utils';
 import AnswerSlot from './AnswerSlot';
@@ -56,7 +57,7 @@ const AnswerPanel = ({ word, length = word?.length, reach = null, picked, result
 const styles = StyleSheet.create({
   wrap: { marginHorizontal: wp(5), marginTop: hp(2), marginBottom: hp(2) },
   track: {
-    height: wp(1.5),
+    height: wp(1.8),
     borderRadius: wp(1),
     overflow: 'hidden',
     backgroundColor: gameProgressTrackColor,
@@ -67,6 +68,8 @@ const styles = StyleSheet.create({
     paddingVertical: spacings.xxxxLarge,
     paddingHorizontal: spacings.large,
     borderRadius: wp(5),
+    borderWidth: 1,
+    borderColor: skyGlassBorder,
     backgroundColor: gameRackBgColor,
   },
 });

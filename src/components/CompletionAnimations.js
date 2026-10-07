@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { style } from '../constant/Fonts';
-import { gameBubbleColors, gameTileTextColor, gameAccentColor } from '../constant/Color';
+import { gameBubbleColors, gameTileTextColor, gameAccentColor, gameTileEdgeColor } from '../constant/Color';
 import {
   DONE_CONFETTI_COUNT,
   DONE_RAIN_COUNT,
@@ -267,7 +267,13 @@ export const pickVariant = () => {
 
 const styles = StyleSheet.create({
   faller: { position: 'absolute', top: 0 },
-  rainTile: { borderRadius: wp(2), alignItems: 'center', justifyContent: 'center' },
+  rainTile: {
+    borderRadius: wp(2.5),
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomWidth: 2,
+    borderBottomColor: gameTileEdgeColor,
+  },
   rainLetter: { color: gameTileTextColor },
   spark: { position: 'absolute' },
   trophy: { position: 'absolute', fontSize: wp(28) },

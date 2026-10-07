@@ -4,15 +4,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BaseStyle } from '../constant/Style';
 import { style, spacings } from '../constant/Fonts';
 import {
-  gameBgColor,
-  gameBadgeBgColor,
-  gameArenaBgColor,
-  gameArenaBorderColor,
   gameAccentColor,
-  gameTextColor,
-  gameMutedTextColor,
   gameWinColor,
   gameLoseColor,
+  roleCardBg,
+  roleCardText,
+  roleTitleOnSky,
+  skyGlass,
+  skyGlassBorder,
 } from '../constant/Color';
 import {
   POINTS_PER_WORD,
@@ -31,6 +30,7 @@ import useBubblePhysics from '../hooks/useBubblePhysics';
 import AnswerPanel from '../components/AnswerPanel';
 import BottomTabs from '../components/BottomTabs';
 import ResultModal from '../components/Modals/ResultModal';
+import SkyBackdrop from '../components/SkyBackdrop';
 
 const GameScreen = () => {
   const [word, setWord] = useState(() => pickWord());
@@ -124,7 +124,9 @@ const GameScreen = () => {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={[BaseStyle.flex, styles.container]}>
+    <View style={BaseStyle.flex}>
+      <SkyBackdrop variant="shuffle" />
+    <SafeAreaView edges={['top']} style={BaseStyle.flex}>
       <View style={[BaseStyle.flexDirectionRow, BaseStyle.alignItemsCenter, BaseStyle.justifyContentSpaceBetween, styles.header]}>
         <View style={[styles.badge, BaseStyle.alignItemsCenter]}>
           <Text style={[styles.badgeLabel, style.fontSizeExtraSmall, style.fontWeightMedium1x]}>{TEXTS.score}</Text>
@@ -198,29 +200,29 @@ const GameScreen = () => {
         onPress={() => startRound(pickWord(word))}
       />
     </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: gameBgColor },
   header: { paddingHorizontal: wp(5), paddingTop: hp(2) },
-  title: { color: gameTextColor },
+  title: { color: roleTitleOnSky, letterSpacing: 0.4 },
   badge: {
     minWidth: wp(18),
     paddingVertical: spacings.small,
     paddingHorizontal: spacings.xxxLarge,
-    borderRadius: wp(3),
-    backgroundColor: gameBadgeBgColor,
+    borderRadius: wp(4),
+    backgroundColor: roleCardBg,
   },
-  badgeLabel: { color: gameAccentColor, letterSpacing: 1 },
-  badgeValue: { color: gameTextColor },
-  hint: { color: gameMutedTextColor, marginTop: hp(3), marginBottom: hp(1.5) },
+  badgeLabel: { color: gameAccentColor, letterSpacing: 1.2 },
+  badgeValue: { color: roleCardText },
+  hint: { color: roleTitleOnSky, marginTop: hp(3), marginBottom: hp(1.5) },
   arena: {
     marginHorizontal: wp(5),
-    borderRadius: wp(6),
-    borderWidth: 1,
-    borderColor: gameArenaBorderColor,
-    backgroundColor: gameArenaBgColor,
+    borderRadius: wp(7),
+    borderWidth: 1.5,
+    borderColor: skyGlassBorder,
+    backgroundColor: skyGlass,
   },
   cross: { fontSize: wp(60), color: gameLoseColor },
 });

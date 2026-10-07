@@ -22,15 +22,15 @@ export const lightPink = "#FFEBEB";
 export const blackOpacity7 = 'rgba(0,0,0,0.7)';
 export const greenColor = "#3B8000";
 
-export const splashBgColor = '#1C1E2B';
-export const authCardBg = '#1A1D2B';
-export const authInputBg = '#252837';
-export const authBorderColor = 'rgba(255,255,255,0.1)';
-export const authMutedColor = '#8A8D9F';
+export const splashBgColor = '#0B1020';
+export const authCardBg = '#151B2E';
+export const authInputBg = '#1C243A';
+export const authBorderColor = 'rgba(245,193,90,0.18)';
+export const authMutedColor = '#9AA3B8';
 export const authLinkColor = '#5B9BD5';
 export const authTabBg = '#1E2130';
 export const authSocialBg = '#1E2130';
-export const authStatCardBg = 'rgba(255,255,255,0.06)';
+export const authStatCardBg = 'rgba(255,255,255,0.05)';
 
 
 
@@ -143,49 +143,80 @@ export const scrim = 'rgba(15,20,30,0.45)';
 // ---------------------------------------------------------------------------
 // Word game
 // ---------------------------------------------------------------------------
-// Dark ground, white letter tiles, one gold accent. Built from the tokens
-// above so the game follows any theme change made there.
-export const gameBgColor = splashBgColor;
-export const gameCardColor = authCardBg;
-export const gameSlotBgColor = authInputBg;
-export const gameTileBgColor = whiteColor;
-export const gameTileTextColor = darkgrayColor;
-export const gameAccentColor = goldColor;
-export const gameTextColor = whiteColor;
-export const gameMutedTextColor = authMutedColor;
-export const gameWinColor = okColor;
-export const gameLoseColor = primaryRedColor;
-export const gameDotInactiveColor = authBorderColor;
-export const gameScrimColor = blackOpacity7;
+// Midnight ink ground, warm gold tiles. Change these three together to re-colour
+// the whole game: the accent, the darker lower edge of a tile, and a faint frame
+// on a covered box. Text on the accent is dark ink, so keep the accent bright.
+const ACCENT = '#F5C15A';
+const ACCENT_EDGE = '#C9922E';
+const ACCENT_FRAME = 'rgba(245,193,90,0.38)';
 
-// Floating letters. Light fills so the dark letter stays readable on each;
-// a tile takes the colour at its index, cycling.
-export const gameArenaBgColor = authStatCardBg;
-export const gameArenaBorderColor = authBorderColor;
-export const gameBadgeBgColor = authInputBg;
+export const gameBgColor = '#0B1020';
+export const gameCardColor = '#151B2E';
+export const gameSlotBgColor = '#1C243A';
+export const gameTileBgColor = '#FFE7A8';
+export const gameTileTextColor = '#1C1408';
+export const gameOnAccentColor = '#1C1408';
+export const gameSlotFilledTextColor = '#1C1408';
+export const gameAccentColor = ACCENT;
+export const gameAccentSoft = 'rgba(245,193,90,0.14)';
+export const gameTextColor = '#F6F0E4';
+export const gameMutedTextColor = '#9AA3B8';
+export const gameWinColor = '#2BD48A';
+export const gameLoseColor = '#FF5C6A';
+export const gameDotInactiveColor = 'rgba(246,240,228,0.14)';
+export const gameScrimColor = 'rgba(6,8,16,0.72)';
+
+// Play field. A slightly lifted panel so the grid sits in a well, not on the page.
+export const gameArenaBgColor = 'rgba(245,193,90,0.05)';
+export const gameArenaBorderColor = ACCENT_FRAME;
+export const gameBadgeBgColor = '#1C243A';
 export const gameBubbleColors = [
-  goldColor,
-  lightGreenColor,
-  brightTurquoiseColor,
-  lightShadeBlue,
-  lightPink,
-  verylightGrayColor,
+  '#FFE7A8',
+  '#F5C15A',
+  '#FFD27A',
+  '#F8E2B0',
+  '#E8C56A',
+  '#FFC978',
 ];
 
-// Answer rack at the bottom of the game: a recessed bar holding Scrabble-style
-// tiles. A tile is a face colour plus a darker lower edge, which reads as depth.
-export const gameRackBgColor = authInputBg;
-export const gameRackSlotColor = splashBgColor;
-export const gameTileFaceColor = goldColor;
-export const gameTileEdgeColor = dutyOnDutyColor;
-export const gameWinEdgeColor = dutyDrivingColor;
-export const gameLoseEdgeColor = dangerColor;
-export const gameProgressTrackColor = authBorderColor;
+// Answer rack: a recessed bar holding tiles. A tile is a face colour plus a
+// darker lower edge, which reads as depth.
+export const gameRackBgColor = 'rgba(255,255,255,0.22)';
+export const gameRackSlotColor = 'rgba(26, 74, 156, 0.28)';
+export const gameTileFaceColor = ACCENT;
+export const gameTileEdgeColor = ACCENT_EDGE;
+export const gameWinEdgeColor = '#1A9A5E';
+export const gameLoseEdgeColor = '#C73A48';
+export const gameProgressTrackColor = 'rgba(246,240,228,0.12)';
 
-// The back of a covered box: a faint gold frame and a passing glint.
-export const gameCoverFrameColor = 'rgba(255,169,40,0.35)';
-export const gameShimmerColor = 'rgba(255,255,255,0.18)';
+// The back of a covered box. Sky blue with gold trim, so a closed card sits in
+// the sky instead of reading as a dark hole.
+export const gameCoverColor = '#5BA3F5';
+export const gameCoverFrameColor = 'rgba(255,255,255,0.55)';
+export const gameShimmerColor = 'rgba(255,255,255,0.38)';
 
-// One colour per role, used on its card on the role screen.
-export const gameRoleDispatcherColor = brightTurquoiseColor;
-export const gameRoleBrokerColor = goldColor;
+// One colour per role. Light enough for dark lettering on the action chip.
+export const gameRoleDispatcherColor = '#5EEAD4';
+export const gameRoleBrokerColor = '#FF9B7A';
+
+// Sky bands. Each screen picks its own so the sky is not copied around.
+export const roleSkyBands = ['#1A4A9C', '#2B63C4', '#3D7EE8', '#5A98F2', '#7BB2F8', '#A3CCFC', '#C8E2FF', '#E4F2FF'];
+export const splashSkyBands = ['#1E4FA3', '#2F6FD4', '#4C8EEC', '#7BB0F6', '#B7D6FC', '#FFE08A', '#FFC45C', '#F5A928'];
+export const onboardSkyBands = ['#1565C0', '#1E88E5', '#42A5F5', '#64B5F6', '#90CAF9', '#BBDEFB', '#E3F2FD', '#FFF8E7'];
+export const playSkyBands = ['#2474D6', '#3D8AE8', '#5AA0F2', '#78B6F8', '#9BCCFC', '#BDDDFF', '#D8ECFF', '#F0F7FF'];
+export const shuffleSkyBands = ['#0E4D8C', '#1A6FB5', '#2B8FD4', '#4AA8E8', '#7BC4F5', '#A8DCFC', '#D0EEFF', '#EAF7FF'];
+export const doneSkyBands = ['#1A2A6C', '#3B4CCA', '#6B6AE8', '#E07A5F', '#F2A65A', '#F5C15A', '#FFE08A', '#FFF3C4'];
+
+export const roleSunColor = '#FFE08A';
+export const roleSunGlowColor = 'rgba(255,224,138,0.35)';
+export const splashSunColor = '#FFE566';
+export const splashSunGlowColor = 'rgba(255,200,80,0.45)';
+export const roleCloudColor = 'rgba(255,255,255,0.78)';
+export const roleStarColor = 'rgba(255,255,255,0.7)';
+export const roleCardBg = '#FFFBF3';
+export const roleCardText = '#1C1408';
+export const roleCardMuted = '#5C6578';
+export const rolePipEmpty = '#E7E2D4';
+export const roleTitleOnSky = '#FFFFFF';
+export const skyGlass = 'rgba(255,255,255,0.18)';
+export const skyGlassBorder = 'rgba(255,255,255,0.42)';

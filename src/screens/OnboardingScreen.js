@@ -101,20 +101,21 @@
 // text. The version above is kept, commented out, for reference.
 // -----------------------------------------------------------------------------
 import React, { useEffect, useRef, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BaseStyle } from '../constant/Style';
 import { style, spacings } from '../constant/Fonts';
 import {
-  gameBgColor,
   gameAccentColor,
-  gameTextColor,
-  gameDotInactiveColor,
   gameWinColor,
   gameLoseColor,
-  gameCardColor,
+  gameOnAccentColor,
+  gameTileEdgeColor,
   gameRoleDispatcherColor,
   gameRoleBrokerColor,
+  roleCardBg,
+  roleCardText,
+  roleTitleOnSky,
 } from '../constant/Color';
 import {
   ONBOARDING_SLIDES,
@@ -133,6 +134,7 @@ import { ROLE_LIST, ROLE_IDS } from '../constant/Levels';
 import HiddenCard from '../components/HiddenCard';
 import HelpButton from '../components/HelpButton';
 import AnswerSlot from '../components/AnswerSlot';
+import SkyBackdrop from '../components/SkyBackdrop';
 
 // Slide 1: the two roles to pick from, each in its own colour.
 const ROLE_DEMO_COLORS = {
@@ -275,6 +277,28 @@ const OnboardingScreen = ({ onDone }) => {
   const [index, setIndex] = useState(0);
   const listRef = useRef(null);
   const isLast = index === ONBOARDING_SLIDES.length - 1;
+  const float = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(float, {
+          toValue: 1,
+          duration: 2000,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(float, {
+          toValue: 0,
+          duration: 2000,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [float]);
 
   const next = () => {
     if (isLast) {
@@ -286,7 +310,9 @@ const OnboardingScreen = ({ onDone }) => {
   };
 
   return (
-    <SafeAreaView style={[BaseStyle.flex, styles.container]}>
+    <View style={BaseStyle.flex}>
+      <SkyBackdrop variant="onboard" />
+      <SafeAreaView style={BaseStyle.flex}>
       <Pressable style={[BaseStyle.alignSelfEnd, styles.skip]} onPress={onDone}>
         <Text style={[styles.skipText, style.fontSizeNormal2x]}>{TEXTS.skip}</Text>
       </Pressable>
@@ -303,9 +329,23 @@ const OnboardingScreen = ({ onDone }) => {
           const Demo = DEMOS[item.id];
           return (
             <View style={[styles.slide, BaseStyle.alignJustifyCenter]}>
-              <View style={styles.demo}>
+              <Animated.View
+                style={[
+                  styles.demo,
+                  {
+                    transform: [
+                      {
+                        translateY: float.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0, -hp(1.2)],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              >
                 <Demo />
-              </View>
+              </Animated.View>
               <Text style={[styles.title, style.fontSizeLarge2x, style.fontWeightBold, BaseStyle.textAlign]}>
                 {item.title}
               </Text>
@@ -326,14 +366,14 @@ const OnboardingScreen = ({ onDone }) => {
           {isLast ? TEXTS.startPlaying : TEXTS.next}
         </Text>
       </Pressable>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: gameBgColor },
   skip: { padding: spacings.xxxxLarge },
-  skipText: { color: gameTextColor, opacity: 0.8 },
+  skipText: { color: roleTitleOnSky },
   slide: { width: wp(100), paddingHorizontal: wp(9) },
   // Negative margin cancels the slide's side padding, so a wide demo row has the
   // full screen to sit in.
@@ -351,26 +391,26 @@ const styles = StyleSheet.create({
     marginVertical: hp(0.8),
     padding: wp(3),
     borderRadius: wp(5),
-    borderWidth: 2,
-    backgroundColor: gameCardColor,
+    borderWidth: 1.5,
+    backgroundColor: roleCardBg,
   },
   roleIcon: { width: wp(13), height: wp(13), borderRadius: wp(6.5) },
   roleEmoji: { fontSize: wp(7) },
-  roleName: { color: gameTextColor, marginLeft: wp(3) },
+  roleName: { color: roleCardText, marginLeft: wp(3) },
   helpGrid: { width: wp(66) },
   helpButton: { marginTop: hp(2) },
   demoSlots: { marginTop: hp(2) },
   wrongRow: { marginTop: hp(2) },
   verdict: { marginLeft: spacings.xLarge },
   title: { color: gameAccentColor },
-  text: { color: gameTextColor, marginTop: hp(1.5), lineHeight: wp(6.5) },
+  text: { color: roleTitleOnSky, marginTop: hp(1.5), lineHeight: wp(6.5) },
   dots: { marginVertical: hp(2.5) },
   dot: {
     width: wp(2),
     height: wp(2),
     borderRadius: wp(1),
     marginHorizontal: spacings.normal,
-    backgroundColor: gameDotInactiveColor,
+    backgroundColor: 'rgba(255,255,255,0.35)',
   },
   dotActive: { width: wp(6), backgroundColor: gameAccentColor },
   button: {
@@ -379,8 +419,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacings.xLarge,
     borderRadius: wp(4),
     backgroundColor: gameAccentColor,
+    borderBottomWidth: 3,
+    borderBottomColor: gameTileEdgeColor,
   },
-  buttonText: { color: gameBgColor },
+  buttonText: { color: gameOnAccentColor },
 });
 
 export default OnboardingScreen;

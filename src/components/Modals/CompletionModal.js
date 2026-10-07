@@ -4,14 +4,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BaseStyle } from '../../constant/Style';
 import { style, spacings } from '../../constant/Fonts';
 import {
-  gameBgColor,
   gameAccentColor,
-  gameTextColor,
-  gameMutedTextColor,
+  gameOnAccentColor,
+  gameTileEdgeColor,
+  roleTitleOnSky,
 } from '../../constant/Color';
 import { TEXTS } from '../../constant/Constants';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from '../../utils';
 import { pickVariant } from '../CompletionAnimations';
+import SkyBackdrop from '../SkyBackdrop';
 
 // Shown when the last level of a role is cleared: a full screen with one of
 // several animations (a different one each time), a line about the role, the
@@ -43,7 +44,9 @@ const CompletionModal = ({ visible, role, score, onDone }) => {
 
   return (
     <Modal visible={visible} animationType="fade" statusBarTranslucent>
-      <SafeAreaView style={[BaseStyle.flex, styles.container]}>
+      <View style={BaseStyle.flex}>
+        <SkyBackdrop variant="done" />
+        <SafeAreaView style={BaseStyle.flex}>
         <View
           style={[BaseStyle.flex, styles.stage]}
           onLayout={(e) => {
@@ -77,25 +80,27 @@ const CompletionModal = ({ visible, role, score, onDone }) => {
           <Text style={[styles.buttonText, style.fontSizeMedium1x, style.fontWeightBold]}>{TEXTS.backToRoles}</Text>
         </Pressable>
       </SafeAreaView>
+      </View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: gameBgColor },
   stage: { overflow: 'hidden' },
   text: { paddingHorizontal: wp(8), marginBottom: hp(3) },
   title: { color: gameAccentColor },
-  line: { color: gameTextColor, marginTop: hp(1.5) },
-  score: { color: gameMutedTextColor, marginTop: hp(2) },
+  line: { color: roleTitleOnSky, marginTop: hp(1.5) },
+  score: { color: roleTitleOnSky, opacity: 0.85, marginTop: hp(2) },
   button: {
     marginHorizontal: wp(7),
     marginBottom: hp(3),
     paddingVertical: spacings.xLarge,
     borderRadius: wp(4),
     backgroundColor: gameAccentColor,
+    borderBottomWidth: 3,
+    borderBottomColor: gameTileEdgeColor,
   },
-  buttonText: { color: gameBgColor },
+  buttonText: { color: gameOnAccentColor },
 });
 
 export default CompletionModal;

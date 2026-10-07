@@ -19,42 +19,42 @@ export const ROLES = {
     completionLine: 'Every state, time zone and term. You are a dispatch pro!',
     levels: [
       {
-        title: 'Week 1',
+        title: 'Level 1',
         words: [
           'PST', 'CST', 'MST', 'EST', 'FTL', 'LTL', '3PL',
           'WA', 'OR', 'NV', 'CA', 'MI', 'IN', 'OH', 'GA',
         ],
       },
       {
-        title: 'Week 2',
+        title: 'Level 2',
         words: [
           'FMCSA', 'MC', 'USDOT', 'W9', 'COI', 'CDL',
           'MT', 'ID', 'WY', 'FL', 'SC', 'UT', 'CO', 'AZ', 'NM',
         ],
       },
       {
-        title: 'Week 3',
+        title: 'Level 3',
         words: [
           'CP', 'POD', 'BOL', 'FTL', 'LTL', 'TONU', 'ETA', 'ETD',
           'NC', 'ND', 'SD', 'NE', 'KS', 'OK', 'TX',
         ],
       },
       {
-        title: 'Week 4',
+        title: 'Level 4',
         words: [
           'RC', 'FCFS', 'COSTCO', 'PO', 'ICCBAR', 'NCNS',
           'MN', 'IA', 'MO', 'AR', 'LA', 'WI', 'IL', 'KY', 'TN',
         ],
       },
       {
-        title: 'Week 5',
+        title: 'Level 5',
         words: [
           'FAK', 'CATSCALE', 'VIN', 'FRE', 'ELD', 'HOS', 'CABCARD',
           'ME', 'NH', 'MA', 'RI', 'CT', 'NJ', 'DE', 'MD',
         ],
       },
       {
-        title: 'Week 6',
+        title: 'Level 6',
         words: [
           'RPM', 'CPM', 'TC', 'DAT', 'FMCSA', 'BOL', 'BJS', 'POD', 'ELD', 'CDL',
           'FTL', 'LTL', 'TONU', 'HOS', 'FCFS', 'NCNS', 'VT', 'PA', 'NY',
@@ -63,9 +63,9 @@ export const ROLES = {
     ],
   },
 
-  // Freight Broker, from the notebook's "Freight Game Level" pages. Weeks 3 and 4
-  // are only partly readable there (just LA and TX in Week 3), so the rest of
-  // those two weeks is filled with the states the other weeks leave out, until
+  // Freight Broker, from the notebook's "Freight Game Level" pages. Levels 3 and 4
+  // are only partly readable there (just LA and TX in Level 3), so the rest of
+  // those two levels is filled with the states the other levels leave out, until
   // the real lists are added.
   [ROLE_IDS.BROKER]: {
     id: ROLE_IDS.BROKER,
@@ -75,36 +75,36 @@ export const ROLES = {
     completionLine: 'Every load, rate and term. You are a freight pro!',
     levels: [
       {
-        title: 'Week 1',
+        title: 'Level 1',
         words: [
           'RGN', 'GVW', 'BOL', 'POD', 'RC', 'PO', 'LTL', 'FTL', 'HAZMAT', 'FSC',
           'TONU', 'ETD', 'ETA', 'MC', 'DOT', 'RPM', 'COI', 'ELD', 'HOS', 'W9',
         ],
       },
       {
-        title: 'Week 2',
+        title: 'Level 2',
         words: [
           'CA', 'WA', 'OR', 'NV', 'MT', 'ID', 'WY', 'UT', 'CO', 'AZ', 'NM',
           'DAT', 'TWICCARD', 'DH',
         ],
       },
       {
-        title: 'Week 3',
+        title: 'Level 3',
         words: ['LA', 'TX', 'ND', 'SD', 'NE', 'KS', 'OK', 'AR', 'MO', 'IA', 'MN', 'WI'],
       },
       {
-        title: 'Week 4',
+        title: 'Level 4',
         words: ['IL', 'MS', 'AL', 'TN', 'PA', 'DE', 'CT', 'RI', 'MA', 'VT', 'NH'],
       },
       {
-        title: 'Week 5',
+        title: 'Level 5',
         words: [
           'DETENTION', 'KY', 'FL', 'GA', 'SC', 'NC', 'VA', 'NJ', 'WV', 'OH', 'IN',
           'MI', 'NY', 'MD', 'ME', 'FCL', 'LCL',
         ],
       },
       {
-        title: 'Final',
+        title: 'Level 6',
         words: [
           'FMCSA', 'FCFS', 'APPT', 'FTL', 'LTL', 'TONU', 'FCL', 'DOT', 'LCL', 'DAT',
           'MC', 'CDL', 'RPM', 'POD', 'ELD', 'BOL', 'HOS', 'FSC', 'NVOCC',

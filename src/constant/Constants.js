@@ -34,6 +34,9 @@ export const DONE_SPARKLE_COUNT = 10;
 // between one and the next.
 export const ROLE_ENTER_DURATION = 450;
 export const ROLE_ENTER_STAGGER = 140;
+export const ROLE_CLOUD_DURATION = 28000;
+export const DEAL_STAGGER = 14;
+export const DEAL_SPRING_FRICTION = 6;
 
 export const SPLASH_DURATION = 2200;
 export const SPLASH_FADE_DURATION = 800;

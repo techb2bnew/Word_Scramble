@@ -4,15 +4,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BaseStyle } from '../constant/Style';
 import { style, spacings } from '../constant/Fonts';
 import {
-  gameBgColor,
-  gameBadgeBgColor,
-  gameArenaBgColor,
-  gameArenaBorderColor,
   gameAccentColor,
-  gameTextColor,
-  gameMutedTextColor,
   gameWinColor,
   gameLoseColor,
+  roleCardBg,
+  roleCardText,
+  roleTitleOnSky,
+  skyGlass,
+  skyGlassBorder,
 } from '../constant/Color';
 import {
   POINTS_PER_WORD,
@@ -42,6 +41,7 @@ import AnswerPanel from '../components/AnswerPanel';
 import HelpButton from '../components/HelpButton';
 import ResultModal from '../components/Modals/ResultModal';
 import CompletionModal from '../components/Modals/CompletionModal';
+import SkyBackdrop from '../components/SkyBackdrop';
 
 // A level is a list of words to find. The grid of covered boxes holds the letters
 // of some of them; the player taps boxes one by one and each box turns over, its
@@ -177,7 +177,9 @@ const WordMatchScreen = ({ role, levelIndex, startScore, onLevelComplete, onNext
   };
 
   return (
-    <SafeAreaView style={[BaseStyle.flex, styles.container]}>
+    <View style={BaseStyle.flex}>
+      <SkyBackdrop variant="play" />
+    <SafeAreaView style={BaseStyle.flex}>
       <View style={[BaseStyle.flexDirectionRow, BaseStyle.alignItemsCenter, BaseStyle.justifyContentSpaceBetween, styles.header]}>
         <View style={[styles.badge, BaseStyle.alignItemsCenter]}>
           <Text style={[styles.badgeLabel, style.fontSizeExtraSmall, style.fontWeightMedium1x]}>{TEXTS.score}</Text>
@@ -209,13 +211,15 @@ const WordMatchScreen = ({ role, levelIndex, startScore, onLevelComplete, onNext
       >
         {cardWidth > 0 && cardHeight > 0 && (
           <View style={[BaseStyle.flexDirectionRow, BaseStyle.flexWrap, { width: GRID_COLUMNS * (cardWidth + 2 * CARD_MARGIN) }]}>
-            {round.tiles.map((tile) => (
+            {round.tiles.map((tile, i) => (
               <HiddenCard
                 key={`${roundKey}-${tile.id}`}
                 letter={tile.ch}
                 width={cardWidth}
                 height={cardHeight}
                 colorIndex={tile.id}
+                dealIndex={i}
+                dealKey={roundKey}
                 open={revealed.includes(tile.id)}
                 used={picked.some((p) => p.id === tile.id)}
                 found={found.includes(tile.id)}
@@ -301,32 +305,32 @@ const WordMatchScreen = ({ role, levelIndex, startScore, onLevelComplete, onNext
         onDone={onExit}
       />
     </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: gameBgColor },
   header: { paddingHorizontal: wp(5), paddingTop: hp(2) },
-  title: { color: gameTextColor },
+  title: { color: roleTitleOnSky, letterSpacing: 0.4 },
   badge: {
     minWidth: wp(18),
     paddingVertical: spacings.small,
     paddingHorizontal: spacings.xxxLarge,
-    borderRadius: wp(3),
-    backgroundColor: gameBadgeBgColor,
+    borderRadius: wp(4),
+    backgroundColor: roleCardBg,
   },
-  badgeLabel: { color: gameAccentColor, letterSpacing: 1 },
-  badgeValue: { color: gameTextColor },
+  badgeLabel: { color: gameAccentColor, letterSpacing: 1.2 },
+  badgeValue: { color: roleCardText },
   hintRow: { marginHorizontal: wp(5), marginTop: hp(2), marginBottom: hp(1.5) },
   back: { paddingRight: spacings.xxxLarge },
-  backText: { color: gameAccentColor },
-  hint: { flex: 1, color: gameMutedTextColor },
+  backText: { color: roleTitleOnSky },
+  hint: { flex: 1, color: roleTitleOnSky },
   arena: {
     marginHorizontal: wp(5),
-    borderRadius: wp(6),
-    borderWidth: 1,
-    borderColor: gameArenaBorderColor,
-    backgroundColor: gameArenaBgColor,
+    borderRadius: wp(7),
+    borderWidth: 1.5,
+    borderColor: skyGlassBorder,
+    backgroundColor: skyGlass,
   },
   cross: { fontSize: wp(60), color: gameLoseColor },
 });

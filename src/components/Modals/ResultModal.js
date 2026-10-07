@@ -7,8 +7,10 @@ import {
   gameAccentColor,
   gameTextColor,
   gameMutedTextColor,
-  gameBgColor,
+  gameOnAccentColor,
   gameScrimColor,
+  gameArenaBorderColor,
+  gameTileEdgeColor,
 } from '../../constant/Color';
 import { widthPercentageToDP as wp } from '../../utils';
 
@@ -38,6 +40,8 @@ const styles = StyleSheet.create({
     width: wp(82),
     padding: spacings.xxxxLarge,
     borderRadius: wp(6),
+    borderWidth: 1,
+    borderColor: gameArenaBorderColor,
     backgroundColor: gameCardColor,
   },
   icon: { fontSize: wp(16) },
@@ -52,8 +56,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacings.xLarge,
     borderRadius: wp(4),
     backgroundColor: gameAccentColor,
+    borderBottomWidth: 3,
+    borderBottomColor: gameTileEdgeColor,
   },
-  buttonText: { color: gameBgColor },
+  buttonText: { color: gameOnAccentColor },
 });
 
 export default ResultModal;

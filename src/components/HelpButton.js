@@ -3,9 +3,9 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { BaseStyle } from '../constant/Style';
 import { style, spacings } from '../constant/Fonts';
 import {
-  gameBadgeBgColor,
   gameAccentColor,
-  gameBgColor,
+  gameAccentSoft,
+  gameOnAccentColor,
   gameTextColor,
 } from '../constant/Color';
 import { TEXTS } from '../constant/Constants';
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     borderRadius: wp(5),
     borderWidth: 1,
     borderColor: gameAccentColor,
-    backgroundColor: gameBadgeBgColor,
+    backgroundColor: gameAccentSoft,
   },
   empty: { opacity: 0.5 },
   label: { color: gameTextColor, marginHorizontal: spacings.small },
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     borderRadius: wp(2.25),
     backgroundColor: gameAccentColor,
   },
-  countText: { color: gameBgColor },
+  countText: { color: gameOnAccentColor },
 });
 
 export default HelpButton;

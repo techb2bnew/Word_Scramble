@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     width: wp(10),
     height: wp(13),
     marginHorizontal: spacings.small,
-    borderRadius: wp(2.5),
+    borderRadius: wp(2.8),
   },
   empty: { backgroundColor: gameRackSlotColor },
   highlight: { borderWidth: 2, borderColor: gameAccentColor },
