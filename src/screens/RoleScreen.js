@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BaseStyle } from '../constant/Style';
 import { style, spacings } from '../constant/Fonts';
@@ -19,6 +19,7 @@ import {
 import {
   STORAGE_KEYS,
   TEXTS,
+  PRIVACY_POLICY_URL,
   SPLASH_LOGO_LETTERS,
   ROLE_ENTER_DURATION,
   ROLE_ENTER_STAGGER,
@@ -177,6 +178,16 @@ const RoleScreen = ({ onSelect }) => {
         </View>
 
         <Text style={[styles.footer, style.fontSizeSmall1x, BaseStyle.textAlign]}>{TEXTS.roleFooter}</Text>
+        <Pressable
+          style={styles.privacy}
+          hitSlop={wp(3)}
+          // With no browser or no connection the tap does nothing, which is fine.
+          onPress={() => Linking.openURL(PRIVACY_POLICY_URL).catch(() => {})}
+        >
+          <Text style={[styles.privacyText, style.fontSizeSmall2x, style.fontWeightMedium1x, BaseStyle.textAlign]}>
+            {TEXTS.privacyPolicy}
+          </Text>
+        </Pressable>
       </SafeAreaView>
     </View>
   );
@@ -242,7 +253,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
   },
   actionText: { color: gameOnAccentColor },
-  footer: { color: roleTitleOnSky, opacity: 0.85, marginBottom: hp(2), marginHorizontal: wp(10) },
+  // Dark, not white: the bottom of the sky is pale, and white text vanished on it.
+  footer: { color: roleCardMuted, marginBottom: hp(1), marginHorizontal: wp(10) },
+  privacy: { alignSelf: 'center', marginBottom: hp(2.5), paddingVertical: spacings.small },
+  privacyText: { color: roleCardText, textDecorationLine: 'underline' },
 });
 
 export default RoleScreen;

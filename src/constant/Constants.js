@@ -38,6 +38,9 @@ export const ROLE_CLOUD_DURATION = 28000;
 export const DEAL_STAGGER = 14;
 export const DEAL_SPRING_FRICTION = 6;
 
+// The privacy policy page. Both stores ask for this link, and the app shows it too.
+export const PRIVACY_POLICY_URL = 'https://samsara.b2bcampus.com/privacy/word-haul';
+
 export const SPLASH_DURATION = 2200;
 export const SPLASH_FADE_DURATION = 800;
 export const SPLASH_SPRING_FRICTION = 4;
@@ -174,6 +177,7 @@ export const TEXTS = {
   roleContinue: 'Continue',
   rolePlayAgain: 'Play again',
   roleFooter: 'You can switch role any time with the back arrow.',
+  privacyPolicy: 'Privacy Policy',
   levelOf: 'of',
   levelWord: 'Level',
   allDone: 'All levels completed',
